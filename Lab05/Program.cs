@@ -82,6 +82,102 @@ namespace ClinicApp
             }
         }
 
+        static void AddPatient(Clinic clinic)
+        {
+            try
+            {
+                Console.Write("Ім'я: ");
+                string name = Console.ReadLine()!;
+                Console.Write("Прізвище: ");
+                string surname = Console.ReadLine()!;
+                Console.Write("Дата народження (dd.MM.yyyy): ");
+                if (!DateTime.TryParse(Console.ReadLine(), out DateTime birthDate))
+                {
+                    Console.WriteLine("Некоректний формат дати.");
+                    return;
+                }
+
+                Console.Write("Телефон (10 цифр): ");
+                string phone = Console.ReadLine()!;
+
+                clinic.Patients.Add(new Patient(name, surname, birthDate, BloodType.Unknown, phone));
+            }
+            catch (ArgumentException ex)
+            {
+                Console.WriteLine($"Помилка: {ex.Message}");
+            }
+        }
+
+        static void AddDoctor(Clinic clinic)
+        {
+            try
+            {
+                Console.Write("Ім'я: ");
+                string name = Console.ReadLine()!;
+                Console.Write("Прізвище: ");
+                string surname = Console.ReadLine()!;
+                Console.WriteLine("Спеціалізації: " + string.Join(", ", Enum.GetNames<Speciality>()));
+                Console.Write("Спеціалізація: ");
+                if (!Enum.TryParse(Console.ReadLine(), true, out Speciality spec))
+                {
+                    spec = Speciality.General;
+                }
+
+                Console.Write("Номер ліцензії: ");
+                string license = Console.ReadLine()!;
+                Console.Write("Телефон (10 цифр): ");
+                string phone = Console.ReadLine()!;
+
+                Console.Write("Початок робочого дня (година): ");
+                if (!int.TryParse(Console.ReadLine(), out int start))
+                {
+                    Console.WriteLine("Некоректне число.");
+                    return;
+                }
+
+                Console.Write("Кінець робочого дня (година): ");
+                if (!int.TryParse(Console.ReadLine(), out int end))
+                {
+                    Console.WriteLine("Некоректне число.");
+                    return;
+                }
+
+                clinic.Doctors.Add(new Doctor(name, surname, spec, license, phone, new WorkSchedule(start, end)));
+            }
+            catch (ArgumentException ex)
+            {
+                Console.WriteLine($"Помилка: {ex.Message}");
+            }
+        }
+
+        static void BookAppointment(Clinic clinic, int patientId, int doctorId)
+        {
+            try
+            {
+                Console.Write("Введіть дату та час (формат dd.MM.yyyy HH:mm): ");
+                if (!DateTime.TryParse(Console.ReadLine(), out DateTime dt))
+                {
+                    Console.WriteLine("Некоректний формат дати.");
+                    return;
+                }
+
+                Console.Write("Тривалість у хвилинах (за замовчуванням 30): ");
+                string durationInput = Console.ReadLine()!;
+                int duration = 30;
+                if (!string.IsNullOrWhiteSpace(durationInput) && !int.TryParse(durationInput, out duration))
+                {
+                    Console.WriteLine("Некоректне число.");
+                    return;
+                }
+
+                clinic.Appointments.Book(patientId, doctorId, dt, duration);
+            }
+            catch (ArgumentException ex)
+            {
+                Console.WriteLine($"Помилка: {ex.Message}");
+            }
+        }
+
         static void RunPatientsMenu(Clinic clinic)
         {
             bool subExit = false;
@@ -106,11 +202,7 @@ namespace ClinicApp
                         clinic.Patients.DisplayAll();
                         break;
                     case "2":
-                        Console.Write("Ім'я: ");
-                        string name = Console.ReadLine()!;
-                        Console.Write("Прізвище: ");
-                        string surname = Console.ReadLine()!;
-                        clinic.Patients.Add(new Patient(name, surname));
+                        AddPatient(clinic);
                         break;
                     case "3":
                         Console.Write("Введіть ID: ");
@@ -181,17 +273,7 @@ namespace ClinicApp
                         clinic.Doctors.DisplayAll();
                         break;
                     case "2":
-                        Console.Write("Ім'я: ");
-                        string name = Console.ReadLine()!;
-                        Console.Write("Прізвище: ");
-                        string surname = Console.ReadLine()!;
-                        Console.WriteLine("Спеціалізації: " + string.Join(", ", Enum.GetNames<Speciality>()));
-                        Console.Write("Спеціалізація: ");
-                        if (!Enum.TryParse(Console.ReadLine(), true, out Speciality spec))
-                        {
-                            spec = Speciality.General;
-                        }
-                        clinic.Doctors.Add(new Doctor(name, surname, spec));
+                        AddDoctor(clinic);
                         break;
                     case "3":
                         Console.Write("Введіть ID лікаря: ");
@@ -270,15 +352,7 @@ namespace ClinicApp
                             Console.Write("Введіть ID лікаря: ");
                             if (int.TryParse(Console.ReadLine(), out int dId))
                             {
-                                Console.Write("Введіть дату та час (формат dd.MM.yyyy HH:mm): ");
-                                if (DateTime.TryParse(Console.ReadLine(), out DateTime dt))
-                                {
-                                    clinic.Appointments.Book(pId, dId, dt);
-                                }
-                                else
-                                {
-                                    Console.WriteLine("Некоректний формат дати.");
-                                }
+                                BookAppointment(clinic, pId, dId);
                             }
                         }
                         break;

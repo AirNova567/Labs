@@ -17,6 +17,11 @@ namespace ClinicApp.Models
             get => _durationMinutes;
             set
             {
+                if (value <= 0)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(DurationMinutes), value, "Тривалість запису має бути більшою за 0.");
+                }
+
                 _durationMinutes = value;
             }
         }
@@ -30,11 +35,11 @@ namespace ClinicApp.Models
 
         public Appointment(int patientId, int doctorId, DateTime scheduledAt, int durationMinutes = 30)
         {
-            Id = _nextId++;
             PatientId = patientId;
             DoctorId = doctorId;
             ScheduledAt = scheduledAt;
             DurationMinutes = durationMinutes;
+            Id = _nextId++;
         }
 
         public bool Cancel(string reason = "")

@@ -13,6 +13,21 @@ public struct WorkSchedule
 
     public WorkSchedule(int start, int end)
     {
+        if (start < 0 || start > 23)
+        {
+            throw new ArgumentException("Початок робочого дня має бути в межах 0–23.", nameof(start));
+        }
+
+        if (end < 1 || end > 24)
+        {
+            throw new ArgumentException("Кінець робочого дня має бути в межах 1–24.", nameof(end));
+        }
+
+        if (start >= end)
+        {
+            throw new ArgumentException("Початок робочого дня має бути раніше за кінець.", nameof(start));
+        }
+
         Start = start;
         End = end;
     }

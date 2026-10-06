@@ -70,7 +70,7 @@ namespace ClinicApp
                         RunGrowableTest();
                         break;
                     case "7":
-                        RunLab04Demo(clinic);
+                        RunLab05Demo(clinic);
                         break;
                     case "0":
                         exit = true;
@@ -315,7 +315,7 @@ namespace ClinicApp
             }
         }
 
-        static void RunLab04Demo(Clinic clinic)
+        static void RunLab05Demo(Clinic clinic)
         {
             Console.WriteLine("=== Демонстрація Lab05 ===");
 

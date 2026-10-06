@@ -10,7 +10,16 @@ namespace ClinicApp.Models
         public int DoctorId { get; }
 
         public DateTime ScheduledAt { get; }
-        public int DurationMinutes { get; }
+        private int _durationMinutes;
+
+        public int DurationMinutes
+        {
+            get => _durationMinutes;
+            set
+            {
+                _durationMinutes = value;
+            }
+        }
         public AppointmentStatus Status { get; private set; } = AppointmentStatus.Scheduled;
         
         public string Notes { get; private set; } = string.Empty;

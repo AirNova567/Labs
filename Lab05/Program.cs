@@ -100,7 +100,14 @@ namespace ClinicApp
                 Console.Write("Телефон (10 цифр): ");
                 string phone = Console.ReadLine()!;
 
-                clinic.Patients.Add(new Patient(name, surname, birthDate, BloodType.Unknown, phone));
+                Console.Write("Email (можна пропустити): ");
+                string email = Console.ReadLine()!;
+
+                ClinicValidator.ValidateEmail(email);
+
+                Patient patient = new Patient(name, surname, birthDate, BloodType.Unknown, phone);
+                patient.Email = email;
+                clinic.Patients.Add(patient);
             }
             catch (ArgumentException ex)
             {

@@ -73,6 +73,39 @@ public class DoctorManager
         return result;
     }
     
+    public Doctor[] FindBySpeciality(Speciality speciality)
+    {
+        int matchesCount = 0;
+
+        for (int i = 0; i < _count; i++)
+        {
+            if (_doctors[i].Speciality == speciality)
+            {
+                matchesCount++;
+            }
+        }
+
+        Doctor[] result = new Doctor[matchesCount];
+        int index = 0;
+
+        for (int i = 0; i < _count; i++)
+        {
+            if (_doctors[i].Speciality == speciality)
+            {
+                result[index++] = _doctors[i];
+            }
+        }
+
+        return result;
+    }
+    
+    public bool TryFindById(int id, out Doctor doctor)
+    {
+        Doctor? found = FindById(id);
+        doctor = found!;
+        return found != null;
+    }
+    
     private static bool MatchesSpeciality(Speciality speciality, string lowerQuery)
     {
         return speciality.ToString().ToLower().Contains(lowerQuery) ||

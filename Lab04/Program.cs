@@ -31,6 +31,7 @@ namespace Lab04
                 Console.WriteLine("4. Показати розклад на дату");
                 Console.WriteLine("5. Згенерувати звіт клініки");
                 Console.WriteLine("6. Запустити тест GrowablePatientManager (Завдання 8)");
+                Console.WriteLine("7. Демонстрація Lab04 (індексатор, перевантаження, out, ?., ??)");
                 Console.WriteLine("0. Вихід");
                 Console.Write("Оберіть опцію: ");
 
@@ -64,6 +65,9 @@ namespace Lab04
                         break;
                     case "6":
                         RunGrowableTest();
+                        break;
+                    case "7":
+                        RunLab04Demo(clinic);
                         break;
                     case "0":
                         exit = true;
@@ -306,6 +310,54 @@ namespace Lab04
                         break;
                 }
             }
+        }
+
+        static void RunLab04Demo(Clinic clinic)
+        {
+            Console.WriteLine("=== Демонстрація Lab04 ===");
+
+            Console.WriteLine($"Patients[0]   → {clinic.Patients[0]?.FullName ?? "не знайдено"}");
+            Console.WriteLine($"Patients[999] → {clinic.Patients[999]?.FullName ?? "не знайдено"}");
+            Console.WriteLine($"Doctors[1]    → {clinic.Doctors[1]?.FullName ?? "не знайдено"}");
+            Console.WriteLine($"Appointments[0] → {clinic.Appointments[0]?.ToString() ?? "не знайдено"}");
+
+            Doctor[] cardiologists = clinic.Doctors.FindBySpeciality(Speciality.Cardiology);
+            Doctor[] found = clinic.Doctors.FindBySpeciality("кардіо");
+            Console.WriteLine($"FindBySpeciality(Speciality.Cardiology) → {cardiologists.Length}");
+            Console.WriteLine($"FindBySpeciality(\"кардіо\")              → {found.Length}");
+
+            Appointment[] byDate = clinic.Appointments.GetByDate(2026, 5, 9);
+            Appointment[] byDateTime = clinic.Appointments.GetByDate(new DateTime(2026, 5, 9));
+            Console.WriteLine($"GetByDate(2026, 5, 9) → {byDate.Length}, GetByDate(DateTime) → {byDateTime.Length}");
+
+            if (clinic.Patients.TryFindById(3, out Patient patient))
+            {
+                Console.WriteLine($"TryFindById(3)  → {patient.FullName}");
+            }
+
+            if (!clinic.Patients.TryFindById(99, out Patient _))
+            {
+                Console.WriteLine("TryFindById(99) → false");
+            }
+
+            if (!clinic.Doctors.TryFindById(99, out Doctor _))
+            {
+                Console.WriteLine("Doctors.TryFindById(99) → false");
+            }
+
+            string name = clinic.Patients.FindById(99)?.FullName ?? "не знайдено";
+            Console.WriteLine($"FindById(99)?.FullName ?? ... → {name}");
+
+            Patient[] bNegative = clinic.Patients.FindByBloodType(BloodType.BNegative);
+            Console.WriteLine($"FindByBloodType(BNegative) → {bNegative.Length}");
+            foreach (Patient p in bNegative)
+            {
+                Console.WriteLine($"  {p}");
+            }
+
+            WorkSchedule morning = new(8, 16);
+            Console.WriteLine($"WorkSchedule → {morning}");
+            Console.WriteLine($"FormatAge: {ClinicFormatter.FormatAge(1)}, {ClinicFormatter.FormatAge(3)}, {ClinicFormatter.FormatAge(11)}, {ClinicFormatter.FormatAge(21)}");
         }
 
         static void RunGrowableTest()

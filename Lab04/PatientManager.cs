@@ -50,6 +50,39 @@ public class PatientManager
     
     
 
+    public bool TryFindById(int id, out Patient patient)
+    {
+        Patient? found = FindById(id);
+        patient = found!;
+        return found != null;
+    }
+
+    public Patient[] FindByBloodType(BloodType bloodType)
+    {
+        int matchesCount = 0;
+
+        for (int i = 0; i < _count; i++)
+        {
+            if (_patients[i].BloodType == bloodType)
+            {
+                matchesCount++;
+            }
+        }
+
+        Patient[] result = new Patient[matchesCount];
+        int index = 0;
+
+        for (int i = 0; i < _count; i++)
+        {
+            if (_patients[i].BloodType == bloodType)
+            {
+                result[index++] = _patients[i];
+            }
+        }
+
+        return result;
+    }
+
     public Patient[] FindByName(string query)
     {
         string lowerQuery = query.ToLower();

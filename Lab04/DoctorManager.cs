@@ -20,6 +20,19 @@ public class DoctorManager
         Console.WriteLine($"Лікаря [{doctor.Id}] {doctor.FullName} додано.");
     }
     
+    public Doctor? this[int index]
+    {
+        get
+        {
+            if (index < 0 || index >= _count)
+            {
+                return null;
+            }
+
+            return _doctors[index];
+        }
+    }
+    
     public Doctor? FindById(int id)
     {
         for (int i = 0; i < _count; i++)
@@ -40,7 +53,7 @@ public class DoctorManager
 
         for (int i = 0; i < _count; i++)
         {
-            if (_doctors[i].Speciality.ToString().ToLower().Contains(lowerQuery))
+            if (MatchesSpeciality(_doctors[i].Speciality, lowerQuery))
             {
                 matchesCount++;
             }
@@ -51,13 +64,19 @@ public class DoctorManager
 
         for (int i = 0; i < _count; i++)
         {
-            if (_doctors[i].Speciality.ToString().ToLower().Contains(lowerQuery))
+            if (MatchesSpeciality(_doctors[i].Speciality, lowerQuery))
             {
                 result[index++] = _doctors[i];
             }
         }
 
         return result;
+    }
+    
+    private static bool MatchesSpeciality(Speciality speciality, string lowerQuery)
+    {
+        return speciality.ToString().ToLower().Contains(lowerQuery) ||
+               ClinicFormatter.FormatSpeciality(speciality).ToLower().Contains(lowerQuery);
     }
     
     public Doctor[] GetAll()
@@ -169,7 +188,7 @@ public class DoctorManager
                 }
             }
 
-            Console.WriteLine($"  {currentSpec}: {specCount}");
+            Console.WriteLine($"  {ClinicFormatter.FormatSpeciality(currentSpec)}: {specCount}");
         }
 
         Console.WriteLine("============================");

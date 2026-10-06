@@ -17,6 +17,19 @@ public class AppointmentManager
         _doctors = doctorManager;
     }
     
+    public Appointment? this[int index]
+    {
+        get
+        {
+            if (index < 0 || index >= _count)
+            {
+                return null;
+            }
+
+            return _appointments[index];
+        }
+    }
+    
     private Appointment? FindById(int id)
     {
         for (int i = 0; i < _count; i++)

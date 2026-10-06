@@ -53,7 +53,7 @@ public class Clinic
                 }
             }
 
-            PrintBoxLine($"  {doctors[i].FullName} ({doctors[i].Speciality}): {count} записів", innerWidth);
+            PrintBoxLine($"  {doctors[i].FullName} ({ClinicFormatter.FormatSpeciality(doctors[i].Speciality)}): {count} записів", innerWidth);
         }
 
         Console.WriteLine("╚" + new string('═', innerWidth + 2) + "╝");

@@ -199,6 +199,30 @@ namespace ClinicApp
             }
         }
 
+        static void ShowAppointmentsByType(Clinic clinic)
+        {
+            Console.WriteLine("  1. Термінові");
+            Console.WriteLine("  2. Консультації спеціаліста");
+            Console.WriteLine("  3. Звичайні");
+            Console.Write("Оберіть: ");
+
+            switch (Console.ReadLine())
+            {
+                case "1":
+                    clinic.Appointments.DisplayList(clinic.Appointments.GetUrgent());
+                    break;
+                case "2":
+                    clinic.Appointments.DisplayList(clinic.Appointments.GetSpecialist());
+                    break;
+                case "3":
+                    clinic.Appointments.DisplayList(clinic.Appointments.GetRegular());
+                    break;
+                default:
+                    Console.WriteLine("Невідома опція.");
+                    break;
+            }
+        }
+
         static void RunNewVsOverrideDemo()
         {
             UrgentAppointment urgent = new UrgentAppointment(1, 1, DateTime.Today.AddDays(1).AddHours(9), "тест");
@@ -715,6 +739,7 @@ namespace ClinicApp
                 Console.WriteLine("6. Розклад на дату");
                 Console.WriteLine("7. Записи лікаря");
                 Console.WriteLine("8. Скасувати всі записи пацієнта");
+                Console.WriteLine("9. За типом прийому");
                 Console.WriteLine("10. Демонстрація new проти override");
                 Console.WriteLine("0. Повернутися назад");
                 Console.Write("Оберіть опцію: ");
@@ -783,6 +808,9 @@ namespace ClinicApp
                         break;
                     case "8":
                         CancelPatientAppointments(clinic);
+                        break;
+                    case "9":
+                        ShowAppointmentsByType(clinic);
                         break;
                     case "10":
                         RunNewVsOverrideDemo();

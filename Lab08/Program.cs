@@ -29,6 +29,11 @@ namespace ClinicApp
             clinic.Appointments.Book(2, 2, new DateTime(2026, 5, 9, 11, 0, 0), 45);
             clinic.Appointments.Book(3, 3, new DateTime(2026, 5, 10, 9, 0, 0), 20);
 
+            DateTime tomorrow = DateTime.Today.AddDays(1);
+            clinic.Appointments.Book(1, 1, tomorrow.AddHours(10), 30);
+            clinic.Appointments.BookUrgent(2, 2, tomorrow.AddHours(11), "біль у грудях");
+            clinic.Appointments.BookSpecialist(3, 3, tomorrow.AddHours(12), "кардіологія", 60);
+
             SeedMedicalRecords(clinic);
 
             bool exit = false;
@@ -192,6 +197,16 @@ namespace ClinicApp
             {
                 Console.WriteLine($"Помилка: {ex.Message}");
             }
+        }
+
+        static void RunNewVsOverrideDemo()
+        {
+            UrgentAppointment urgent = new UrgentAppointment(1, 1, DateTime.Today.AddDays(1).AddHours(9), "тест");
+            Appointment asBase = urgent;
+
+            Console.WriteLine("== new vs override ==");
+            Console.WriteLine($"Через Appointment:       {asBase.GetDescription()} | пріоритет {asBase.GetPriority()}");
+            Console.WriteLine($"Через UrgentAppointment: {urgent.GetDescription()} | пріоритет {urgent.GetPriority()}");
         }
 
         static void CancelPatientAppointments(Clinic clinic)
@@ -700,6 +715,7 @@ namespace ClinicApp
                 Console.WriteLine("6. Розклад на дату");
                 Console.WriteLine("7. Записи лікаря");
                 Console.WriteLine("8. Скасувати всі записи пацієнта");
+                Console.WriteLine("10. Демонстрація new проти override");
                 Console.WriteLine("0. Повернутися назад");
                 Console.Write("Оберіть опцію: ");
 
@@ -767,6 +783,9 @@ namespace ClinicApp
                         break;
                     case "8":
                         CancelPatientAppointments(clinic);
+                        break;
+                    case "10":
+                        RunNewVsOverrideDemo();
                         break;
                     case "0":
                         subExit = true;

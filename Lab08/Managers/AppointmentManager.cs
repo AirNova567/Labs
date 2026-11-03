@@ -46,17 +46,15 @@ public class AppointmentManager
         return null;
     }
     
-    public bool Book(int patientId, int doctorId, DateTime scheduledAt, int durationMinutes = 30)
+    private bool CanBook(int patientId, int doctorId)
     {
-        var patient = _patients.FindById(patientId);
-        if (patient == null)
+        if (_patients.FindById(patientId) == null)
         {
             Console.WriteLine($"Помилка: пацієнта з ID {patientId} не знайдено.");
             return false;
         }
 
-        var doctor = _doctors.FindById(doctorId);
-        if (doctor == null)
+        if (_doctors.FindById(doctorId) == null)
         {
             Console.WriteLine($"Помилка: лікаря з ID {doctorId} не знайдено.");
             return false;
@@ -68,13 +66,51 @@ public class AppointmentManager
             return false;
         }
 
-        var appointment = new RegularAppointment(patientId, doctorId, scheduledAt, durationMinutes);
-        _appointments[_count++] = appointment;
-
-        Console.WriteLine($"Запис [{appointment.Id}] створено: {patient.FullName} -> {doctor.FullName} о {scheduledAt:dd.MM.yyyy HH:mm}");
         return true;
     }
-    
+
+    private void Store(Appointment appointment)
+    {
+        _appointments[_count++] = appointment;
+
+        string patientName = _patients.FindById(appointment.PatientId)!.FullName;
+        string doctorName = _doctors.FindById(appointment.DoctorId)!.FullName;
+        Console.WriteLine($"Запис [{appointment.Id}] створено: {patientName} -> {doctorName} о {appointment.ScheduledAt:dd.MM.yyyy HH:mm}");
+    }
+
+    public bool Book(int patientId, int doctorId, DateTime scheduledAt, int durationMinutes = 30)
+    {
+        if (!CanBook(patientId, doctorId))
+        {
+            return false;
+        }
+
+        Store(new RegularAppointment(patientId, doctorId, scheduledAt, durationMinutes));
+        return true;
+    }
+
+    public bool BookUrgent(int patientId, int doctorId, DateTime scheduledAt, string urgencyNote = "", int durationMinutes = 30)
+    {
+        if (!CanBook(patientId, doctorId))
+        {
+            return false;
+        }
+
+        Store(new UrgentAppointment(patientId, doctorId, scheduledAt, urgencyNote, durationMinutes));
+        return true;
+    }
+
+    public bool BookSpecialist(int patientId, int doctorId, DateTime scheduledAt, string topic = "", int durationMinutes = 45)
+    {
+        if (!CanBook(patientId, doctorId))
+        {
+            return false;
+        }
+
+        Store(new SpecialistAppointment(patientId, doctorId, scheduledAt, topic, durationMinutes));
+        return true;
+    }
+
     public bool Cancel(int id, string reason = "")
     {
         var app = FindById(id);

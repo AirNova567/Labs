@@ -4,7 +4,7 @@ using ClinicApp.Utils;
 
 namespace ClinicApp.Models
 {
-    public class Appointment : IPayable, ICancellable
+    public class Appointment : IPayable, ICancellable, IIdentifiable
     {
         private static int _nextId = 1;
         public int Id { get; }

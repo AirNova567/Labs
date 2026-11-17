@@ -1,4 +1,5 @@
 using System.Globalization;
+using ClinicApp.Comparators;
 using ClinicApp.Enums;
 using ClinicApp.Interfaces;
 using ClinicApp.Managers;
@@ -33,6 +34,9 @@ namespace ClinicApp
             clinic.Appointments.Book(1, 1, tomorrow.AddHours(10), 30);
             clinic.Appointments.BookUrgent(2, 2, tomorrow.AddHours(11), "біль у грудях");
             clinic.Appointments.BookSpecialist(3, 3, tomorrow.AddHours(12), "кардіологія", 60);
+            clinic.Appointments.Book(1, 2, tomorrow.AddHours(14));
+            clinic.Appointments.Book(1, 2, tomorrow.AddHours(15));
+            clinic.Appointments.Book(2, 1, tomorrow.AddHours(16), 20);
 
             SeedMedicalRecords(clinic);
 
@@ -68,6 +72,9 @@ namespace ClinicApp
                     case "7":
                         clinic.GenerateReport();
                         break;
+                    case "8":
+                        RunAnalyticsMenu(clinic);
+                        break;
                     case "0":
                         exit = true;
                         break;
@@ -91,6 +98,7 @@ namespace ClinicApp
                 "  5. Рахунки        — оплата, борги",
                 "  6. Черга          — очікування, прийом",
                 "  7. Звіт           — загальна статистика",
+                "  8. Аналітика      — рейтинги, статистика",
                 "  0. Вийти"
             };
 
@@ -103,6 +111,96 @@ namespace ClinicApp
                 Console.WriteLine("║" + lines[i].PadRight(innerWidth) + "║");
             }
             Console.WriteLine("╚" + new string('═', innerWidth) + "╝");
+        }
+
+        static List<DoctorStats> CollectDoctorStats(Clinic clinic)
+        {
+            List<DoctorStats> result = new List<DoctorStats>();
+            foreach (DoctorStats stats in clinic.Analytics.ComputeDoctorStats())
+            {
+                result.Add(stats);
+            }
+
+            return result;
+        }
+
+        static List<PatientStats> CollectPatientStats(Clinic clinic)
+        {
+            List<PatientStats> result = new List<PatientStats>();
+            foreach (PatientStats stats in clinic.Analytics.ComputePatientStats())
+            {
+                result.Add(stats);
+            }
+
+            return result;
+        }
+
+        static void RunAnalyticsMenu(Clinic clinic)
+        {
+            bool subExit = false;
+            while (!subExit)
+            {
+                Console.WriteLine("\n── Аналітика ───────────────────");
+                Console.WriteLine("  1. Лікарі за навантаженням");
+                Console.WriteLine("  2. Лікарі за виручкою");
+                Console.WriteLine("  3. Лікарі за іменем");
+                Console.WriteLine("  4. Пацієнти за кількістю візитів");
+                Console.WriteLine("  5. Пацієнти за витратами");
+                Console.WriteLine("  0. Назад");
+                Console.Write("Оберіть: ");
+
+                string choice = Console.ReadLine()!;
+                Console.WriteLine();
+
+                switch (choice)
+                {
+                    case "1":
+                    case "2":
+                    case "3":
+                        List<DoctorStats> doctorStats = CollectDoctorStats(clinic);
+                        if (choice == "1")
+                        {
+                            doctorStats.Sort();
+                        }
+                        else if (choice == "2")
+                        {
+                            doctorStats.Sort(new DoctorStatsByRevenue());
+                        }
+                        else
+                        {
+                            doctorStats.Sort(new DoctorStatsByName());
+                        }
+
+                        foreach (DoctorStats stats in doctorStats)
+                        {
+                            Console.WriteLine(stats);
+                        }
+                        break;
+                    case "4":
+                    case "5":
+                        List<PatientStats> patientStats = CollectPatientStats(clinic);
+                        if (choice == "4")
+                        {
+                            patientStats.Sort();
+                        }
+                        else
+                        {
+                            patientStats.Sort(new PatientStatsBySpent());
+                        }
+
+                        foreach (PatientStats stats in patientStats)
+                        {
+                            Console.WriteLine(stats);
+                        }
+                        break;
+                    case "0":
+                        subExit = true;
+                        break;
+                    default:
+                        Console.WriteLine("Невідома опція.");
+                        break;
+                }
+            }
         }
 
         static void RunWaitingRoomMenu(Clinic clinic)

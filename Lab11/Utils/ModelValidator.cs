@@ -61,7 +61,7 @@ public static class ModelValidator
         Console.WriteLine(type.Name);
         foreach (PropertyInfo prop in properties)
         {
-            string line = "  " + prop.Name.PadRight(nameWidth);
+            string attributes = "";
             foreach (Attribute attribute in prop.GetCustomAttributes())
             {
                 string attributeName = attribute.GetType().Name;
@@ -70,10 +70,10 @@ public static class ModelValidator
                     attributeName = attributeName.Substring(0, attributeName.Length - "Attribute".Length);
                 }
 
-                line += $"  [{attributeName}]";
+                attributes += (attributes.Length > 0 ? " " : "") + $"[{attributeName}]";
             }
 
-            Console.WriteLine(line);
+            Console.WriteLine(("  " + prop.Name.PadRight(nameWidth + 2) + attributes).TrimEnd());
         }
     }
 

@@ -39,6 +39,7 @@ namespace ClinicApp
             clinic.Appointments.Book(2, 1, tomorrow.AddHours(16), 20);
 
             SeedMedicalRecords(clinic);
+            SeedTreatmentPlans(clinic);
 
             bool exit = false;
             while (!exit)
@@ -75,6 +76,9 @@ namespace ClinicApp
                     case "8":
                         RunAnalyticsMenu(clinic);
                         break;
+                    case "9":
+                        RunTreatmentPlansMenu(clinic);
+                        break;
                     case "0":
                         exit = true;
                         break;
@@ -99,6 +103,7 @@ namespace ClinicApp
                 "  6. Черга          — очікування, прийом",
                 "  7. Звіт           — загальна статистика",
                 "  8. Аналітика      — рейтинги, статистика",
+                "  9. Плани лікування — рефлексія, атрибути",
                 "  0. Вийти"
             };
 
@@ -111,6 +116,123 @@ namespace ClinicApp
                 Console.WriteLine("║" + lines[i].PadRight(innerWidth) + "║");
             }
             Console.WriteLine("╚" + new string('═', innerWidth) + "╝");
+        }
+
+        static void SeedTreatmentPlans(Clinic clinic)
+        {
+            TreatmentPlan hypertension = new TreatmentPlan { PatientId = 1, Diagnosis = "Гіпертонія", DurationDays = 30 };
+            clinic.TreatmentPlans.Add(hypertension);
+            hypertension.Activate();
+
+            clinic.TreatmentPlans.Add(new TreatmentPlan { PatientId = 2, Diagnosis = "Мігрень", DurationDays = 14 });
+        }
+
+        static void ChangePlanState(Clinic clinic, string action)
+        {
+            if (!TryReadInt("Введіть ID плану: ", out int planId))
+            {
+                return;
+            }
+
+            TreatmentPlan? plan = clinic.TreatmentPlans.GetById(planId);
+            if (plan == null)
+            {
+                Console.WriteLine("План не знайдено.");
+                return;
+            }
+
+            bool changed;
+            if (action == "activate")
+            {
+                changed = plan.Activate();
+            }
+            else if (action == "complete")
+            {
+                changed = plan.Complete();
+            }
+            else
+            {
+                changed = plan.Cancel();
+            }
+
+            if (changed)
+            {
+                Console.WriteLine($"Статус плану [{plan.Id}] змінено: {plan.Status}.");
+            }
+            else
+            {
+                Console.WriteLine($"Перехід неможливий: поточний статус {plan.Status}.");
+            }
+        }
+
+        static void PrintPlans(TreatmentPlan[] plans)
+        {
+            if (plans.Length == 0)
+            {
+                Console.WriteLine("не знайдено");
+                return;
+            }
+
+            foreach (TreatmentPlan plan in plans)
+            {
+                Console.WriteLine(plan);
+            }
+        }
+
+        static void RunTreatmentPlansMenu(Clinic clinic)
+        {
+            bool subExit = false;
+            while (!subExit)
+            {
+                Console.WriteLine("\n── Плани лікування ────────────────────");
+                Console.WriteLine("  1. Показати всі плани");
+                Console.WriteLine("  2. Додати план лікування");
+                Console.WriteLine("  3. Плани пацієнта");
+                Console.WriteLine("  4. Активувати план");
+                Console.WriteLine("  5. Завершити план");
+                Console.WriteLine("  6. Скасувати план");
+                Console.WriteLine("  7. Інформація про тип TreatmentPlan");
+                Console.WriteLine("  0. Назад");
+                Console.Write("Оберіть: ");
+
+                string choice = Console.ReadLine()!;
+                Console.WriteLine();
+
+                switch (choice)
+                {
+                    case "1":
+                        PrintPlans(clinic.TreatmentPlans.GetAll());
+                        break;
+                    case "2":
+                        TreatmentPlan plan = FormBuilder.Build<TreatmentPlan>();
+                        clinic.TreatmentPlans.Add(plan);
+                        break;
+                    case "3":
+                        if (TryReadInt("Введіть ID пацієнта: ", out int patientId))
+                        {
+                            PrintPlans(clinic.TreatmentPlans.GetByPatient(patientId));
+                        }
+                        break;
+                    case "4":
+                        ChangePlanState(clinic, "activate");
+                        break;
+                    case "5":
+                        ChangePlanState(clinic, "complete");
+                        break;
+                    case "6":
+                        ChangePlanState(clinic, "cancel");
+                        break;
+                    case "7":
+                        ModelValidator.PrintInfo(typeof(TreatmentPlan));
+                        break;
+                    case "0":
+                        subExit = true;
+                        break;
+                    default:
+                        Console.WriteLine("Невідома опція.");
+                        break;
+                }
+            }
         }
 
         static List<DoctorStats> CollectDoctorStats(Clinic clinic)
